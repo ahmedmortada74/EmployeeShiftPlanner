@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>مدير الورديات | Shift Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">B-Tech · STAFF PLANNER</p>
+      <h1>مدير الورديات</h1>
+      <p class="subtitle">أنشئ جدول الشهر، وزّع الورديات، وعدّل أو صدّر ملف Excel.</p>
+    </div>
+    <div class="top-actions">
+      <button id="exportBtn" class="btn btn-light">تصدير Excel</button>
+      <button id="printBtn" class="btn btn-light">طباعة</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel settings">
+      <div class="section-heading">
+        <div><span class="step">01</span>
+          <h2>إعداد الجدول</h2>
+        </div>
+        <span class="muted">حدد الفترة وأسماء الموظفين</span>
+      </div>
+      <div class="form-grid">
+        <label>من تاريخ<input type="date" id="startDate" value="2026-11-21"></label>
+        <label>إلى تاريخ<input type="date" id="endDate" value="2026-12-20"></label>
+        <label class="wide">أسماء الموظفين <small>افصل بين الأسماء بفاصلة عربية أو إنجليزية</small>
+          <input id="employeeNames" value="محمد، غادة، نهى" autocomplete="off">
+        </label>
+      </div>
+      <div class="button-row">
+        <button id="generateBtn" class="btn btn-primary">إنشاء الجدول تلقائيًا</button>
+        <button id="saveBtn" class="btn btn-outline">حفظ التعديلات</button>
+        <span id="saveStatus" class="status" aria-live="polite">يتم الحفظ تلقائيًا على هذا الجهاز</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div><span class="step">02</span>
+          <h2>قواعد الورديات الأسبوعية</h2>
+        </div>
+        <span class="muted">اختر وردية كل موظف في كل يوم</span>
+      </div>
+      <p class="hint">القواعد المبدئية مطابقة لما حددته: السبت، الأحد، الاثنين، والخميس. أكمل باقي الأيام حسب نظام العمل
+        عندك.</p>
+      <div class="rules-wrap">
+        <table id="rulesTable" class="rules-table"></table>
+      </div>
+    </section>
+
+    <section class="panel schedule-panel">
+      <div class="section-heading">
+        <div><span class="step">03</span>
+          <h2>جدول الشهر</h2>
+        </div>
+        <div class="legend">
+          <span><i class="dot am"></i> AM</span>
+          <span><i class="dot pm"></i> PM</span>
+          <span><i class="dot off"></i> OFF</span>
+        </div>
+      </div>
+      <div class="table-meta"><strong id="periodLabel">21 نوفمبر – 20 ديسمبر 2026</strong><span id="dayCount">30
+          يومًا</span></div>
+      <div class="schedule-wrap">
+        <table id="scheduleTable" class="schedule-table"></table>
+      </div>
+      <p class="footnote">لتغيير وردية يوم معين، اضغط على الخانة واختر AM أو PM أو OFF. التعديلات تُحفظ تلقائيًا.</p>
+    </section>
+    <footer>Shift Manager · يعمل محليًا من المتصفح ولا يحتاج إلى حساب أو خادم.</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+
+</html>
