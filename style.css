@@ -8,9 +8,9 @@
     --muted: #898d82;
     --line: #e8e7df;
     --bg: #f6f5f0;
-    --green: #e2eddf;
-    --pink: #f4e8df;
-    --yellow: #eeeae0;
+    --green: #91b886;
+    --pink: #d46464;
+    --yellow: #a7925f;
     --white: #fff;
 }
 
@@ -323,15 +323,15 @@ select:focus {
 }
 
 .dot.am {
-    background: #779c6c;
+    background: var(--green);
 }
 
 .dot.pm {
-    background: #c48d76;
+    background: var(--pink);
 }
 
 .dot.off {
-    background: #aaa99e;
+    background: var(--yellow);
 }
 
 /* Schedule */
@@ -363,19 +363,19 @@ select:focus {
 
 .shift.am {
     background: var(--green);
-    color: #496c42;
+    color: #1f1e1d;
     border-color: #d5e6d0;
 }
 
 .shift.pm {
     background: var(--pink);
-    color: #96614e;
+    color: #1f1e1d;
     border-color: #ebdbd1;
 }
 
 .shift.off {
     background: var(--yellow);
-    color: #777466;
+    color: #1f1e1d;
     border-color: #e6e2d5;
 }
 

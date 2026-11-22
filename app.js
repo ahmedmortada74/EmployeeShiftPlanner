@@ -55,12 +55,178 @@ function renderSchedule() {
 function formatDate(s) { return new Date(s + "T12:00:00").toLocaleDateString("ar-EG", { day: "numeric", month: "long", year: "numeric" }) }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])) }
 function escapeAttr(s) { return escapeHtml(s) }
-function exportCSV() {
-  const days = datesBetween(start, end), rows = [["Day", "Date", ...employees]];
-  days.forEach(d => { let key = isoDate(d); rows.push([dayName(d), key, ...employees.map(n => shifts[key]?.[n] || "OFF")]) });
-  const csv = "\ufeff" + rows.map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob), a = document.createElement("a"); a.href = url; a.download = `Shift_Schedule_${start}_to_${end}.csv`; a.click(); URL.revokeObjectURL(url);
+async function exportCSV() {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Shift Manager";
+  workbook.created = new Date();
+
+  const worksheet = workbook.addWorksheet("Shift Schedule", {
+    views: [{ state: "normal" }]
+  });
+
+  // Columns
+  worksheet.columns = [
+    { header: "Day", key: "day", width: 18 },
+    { header: "Date", key: "date", width: 16 },
+    ...employees.map(name => ({
+      header: name,
+      key: name,
+      width: 18
+    }))
+  ];
+
+  // Header styling
+  const header = worksheet.getRow(1);
+  header.height = 30;
+
+  header.eachCell(cell => {
+    cell.font = {
+      bold: true,
+      color: { argb: "FFFFFFFF" },
+      size: 12
+    };
+
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF1F2937" }
+    };
+
+    cell.alignment = {
+      horizontal: "center",
+      vertical: "middle"
+    };
+
+    cell.border = {
+      top: { style: "medium", color: { argb: "FF64748B" } },
+      left: { style: "medium", color: { argb: "FF64748B" } },
+      bottom: { style: "medium", color: { argb: "FF64748B" } },
+      right: { style: "medium", color: { argb: "FF64748B" } }
+    };
+  });
+
+  // Add schedule rows
+  const days = datesBetween(start, end);
+
+  days.forEach(d => {
+    const key = isoDate(d);
+
+    const rowData = {
+      day: dayName(d),
+      date: key
+    };
+
+    employees.forEach(name => {
+      rowData[name] = shifts[key]?.[name] || "OFF";
+    });
+
+    const row = worksheet.addRow(rowData);
+
+    row.height = 25;
+
+    row.eachCell(cell => {
+      cell.alignment = {
+        horizontal: "center",
+        vertical: "middle"
+      };
+
+      if (cell.col === 1) {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF6B7280" }
+        };
+        cell.font = {
+          bold: true,
+          color: { argb: "FFFFFFFF" }
+        };
+      } else if (cell.col === 2) {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF374151" }
+        };
+        cell.font = {
+          bold: true,
+          color: { argb: "FFFFFFFF" }
+        };
+      }
+
+      cell.border = {
+        bottom: {
+          style: "thin",
+          color: { argb: "FFE5E7EB" }
+        }
+      };
+    });
+
+    // Shift colors
+    employees.forEach(name => {
+      const cell = row.getCell(
+        employees.indexOf(name) + 3
+      );
+
+      const value = cell.value;
+
+      if (value === "AM") {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF91B886" }
+        };
+        cell.font = {
+          bold: true,
+          color: { argb: "FF292F29" }
+        };
+      }
+
+      else if (value === "PM") {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD46464" }
+        };
+        cell.font = {
+          bold: true,
+          color: { argb: "FFFFFFFF" }
+        };
+      }
+
+      else if (value === "OFF") {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFA7925F" }
+        };
+        cell.font = {
+          bold: true,
+          color: { argb: "FFFFFFFF" }
+        };
+      }
+    });
+  });
+
+  // Add autofilter
+  worksheet.autoFilter = {
+    from: "A1",
+    to: worksheet.getRow(1).getCell(employees.length + 2).address
+  };
+
+  // Download Excel file
+  const buffer = await workbook.xlsx.writeBuffer();
+
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = `Shift_Schedule_${start}_to_${end}.xlsx`;
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
 $("generateBtn").addEventListener("click", () => generate(true));
 $("saveBtn").addEventListener("click", () => { employees = parseNames(); save(); renderRules(); renderSchedule() });
